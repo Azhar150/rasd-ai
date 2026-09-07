@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>رصد AI</title>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+    }
+
+    body{
+      background:#f3f6f4;
+      color:#14251d;
+      max-width:520px;
+      margin:auto;
+      min-height:100vh;
+      padding-bottom:90px;
+    }
+
+    header{
+      background:linear-gradient(135deg,#005c3b,#008951);
+      color:white;
+      padding:28px 20px 22px;
+      border-radius:0 0 26px 26px;
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .logo{
+      font-size:29px;
+      font-weight:900;
+    }
+
+    .logo span{
+      font-size:15px;
+      opacity:.8;
+    }
+
+    .badge{
+      background:#ffffff22;
+      padding:8px 12px;
+      border-radius:20px;
+      font-size:13px;
+    }
+
+    h1{
+      margin-top:24px;
+      font-size:22px;
+    }
+
+    .subtitle{
+      font-size:14px;
+      opacity:.85;
+      margin-top:6px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:20px;
+    }
+
+    .stat{
+      background:white;
+      color:#173628;
+      padding:13px 8px;
+      border-radius:15px;
+      text-align:center;
+    }
+
+    .stat b{
+      display:block;
+      font-size:22px;
+    }
+
+    .stat small{
+      color:#718078;
+    }
+
+    .section{
+      padding:18px 15px 4px;
+    }
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+
+    .section-title h2{
+      font-size:18px;
+    }
+
+    .map{
+      height:270px;
+      border-radius:22px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(30deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
+        linear-gradient(150deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
+        linear-gradient(30deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
+        #fff;
+      background-size:70px 120px;
+      border:1px solid #e2e8e4;
+    }
+
+    .road{
+      position:absolute;
+      background:#d8ddd9;
+      opacity:.7;
+    }
+
+    .r1{
+      width:700px;
+      height:20px;
+      transform:rotate(17deg);
+      top:120px;
+      right:-100px;
+    }
+
+    .r2{
+      width:600px;
+      height:14px;
+      transform:rotate(-24deg);
+      top:145px;
+      right:-50px;
+    }
+
+    .marker{
+      position:absolute;
+      width:40px;
+      height:40px;
+      border-radius:50% 50% 50% 4px;
+      transform:rotate(-45deg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:800;
+      box-shadow:0 5px 14px #0002;
+      cursor:pointer;
+    }
+
+    .marker span{
+      transform:rotate(45deg);
+      font-size:11px;
+    }
+
+    .red{background:#e53935}
+    .orange{background:#ff9800}
+    .green{background:#16a05d}
+
+    .m1{top:48px; right:64px}
+    .m2{top:110px; right:180px}
+    .m3{top:178px; right:70px}
+    .m4{top:73px; left:55px}
+    .m5{bottom:28px; left:140px}
+
+    .legend{
+      display:flex;
+      gap:12px;
+      font-size:12px;
+      background:#fff;
+      border-radius:13px;
+      padding:10px;
+      position:absolute;
+      bottom:10px;
+      right:10px;
+    }
+
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      display:inline-block;
+      margin-left:4px;
+    }
+
+    .filters{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom:5px;
+    }
+
+    .filter{
+      border:none;
+      background:#fff;
+      border-radius:18px;
+      padding:9px 14px;
+      white-space:nowrap;
+      color:#56645d;
+    }
+
+    .filter.active{
+      background:#087848;
+      color:#fff;
+    }
+
+    .cards{
+      display:flex;
+      flex-direction:column;
+      gap:11px;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:18px;
+      padding:15px;
+      box-shadow:0 4px 14px #23443210;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      cursor:pointer;
+    }
+
+    .card h3{
+      font-size:16px;
+      margin-bottom:6px;
+    }
+
+    .card p{
+      font-size:12px;
+      color:#718078;
+      line-height:1.7;
+    }
+
+    .risk{
+      min-width:62px;
+      height:62px;
+      border-radius:16px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      color:white;
+      font-weight:800;
+    }
+
+    .risk small{
+      font-size:10px;
+    }
+
+    .panel{
+      background:white;
+      padding:16px;
+      border-radius:18px;
+      margin-top:12px;
+    }
+
+    .ai-score{
+      text-align:center;
+      padding:20px;
+    }
+
+    .ai-score strong{
+      font-size:50px;
+      color:#e53935;
+    }
+
+    .factor{
+      margin:15px 0;
+    }
+
+    .factor-line{
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin-bottom:7px;
+    }
+
+    .bar{
+      width:100%;
+      background:#edf1ee;
+      height:10px;
+      border-radius:8px;
+      overflow:hidden;
+    }
+
+    .fill{
+      height:100%;
+      background:#0a8a52;
+      border-radius:8px;
+    }
+
+    .task{
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    .number{
+      background:#087848;
+      color:white;
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-weight:bold;
+    }
+
+    .task-info{
+      flex:1;
+    }
+
+    .task-info h4{
+      font-size:14px;
+    }
+
+    .task-info p{
+      color:#78867e;
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .tag{
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:10px;
+      color:white;
+    }
+
+    .btn{
+      width:100%;
+      border:none;
+      padding:14px;
+      border-radius:14px;
+      background:#087848;
+      color:white;
+      font-size:15px;
+      font-weight:700;
+      margin-top:12px;
+      cursor:pointer;
+    }
+
+    nav{
+      position:fixed;
+      bottom:0;
+      right:50%;
+      transform:translateX(50%);
+      width:min(100%,520px);
+      background:white;
+      border-top:1px solid #e3e8e5;
+      padding:10px 8px 18px;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      z-index:20;
+    }
+
+    nav button{
+      border:0;
+      background:none;
+      color:#7d8a83;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    nav button span{
+      display:block;
+      font-size:22px;
+      margin-bottom:4px;
+    }
+
+    nav button.active{
+      color:#087848;
+      font-weight:800;
+    }
+
+    .page{
+      display:none;
+    }
+
+    .page.active{
+      display:block;
+    }
+
+    .back-header{
+      padding:20px 16px 10px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .back-header button{
+      border:none;
+      background:white;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      font-size:18px;
+    }
+
+    .alert-box{
+      background:#fff0ef;
+      border:1px solid #ffd5d2;
+      color:#a12622;
+      border-radius:16px;
+      padding:15px;
+      margin-top:12px;
+      line-height:1.8;
+      font-size:13px;
+    }
+
+    .success{
+      background:#effaf4;
+      border:1px solid #ccebd9;
+      color:#116739;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="home" class="page active">
+  <header>
+    <div class="top">
+      <div class="logo">رَصْد <span>AI</span></div>
+      <div class="badge">المفتش الاستباقي</div>
+    </div>
+
+    <h1>صباح الخير 👋</h1>
+    <div class="subtitle">هذه أهم المنشآت التي تحتاج انتباهك اليوم</div>
+
+    <div class="stats">
+      <div class="stat">
+        <b>42</b>
+        <small>منشأة</small>
+      </div>
+
+      <div class="stat">
+        <b style="color:#e53935">8</b>
+        <small>خطورة عالية</small>
+      </div>
+
+      <div class="stat">
+        <b style="color:#0a8a52">21</b>
+        <small>تم التفتيش</small>
+      </div>
+    </div>
+  </header>
+
+  <div class="section">
+    <div class="section-title">
+      <h2>خريطة المخاطر</h2>
+      <small>الدمام</small>
+    </div>
+
+    <div class="map">
+      <div class="road r1"></div>
+      <div class="road r2"></div>
+
+      <div class="marker red m1" onclick="openFacility()"><span>87%</span></div>
+      <div class="marker orange m2"><span>62%</span></div>
+      <div class="marker green m3"><span>15%</span></div>
+      <div class="marker red m4"><span>81%</span></div>
+      <div class="marker orange m5"><span>55%</span></div>
+
+      <div class="legend">
+        <div><i class="dot red"></i> عالية</div>
+        <div><i class="dot orange"></i> متوسطة</div>
+        <div><i class="dot green"></i> منخفضة</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <h2>أولوية التفتيش</h2>
+    </div>
+
+    <div class="filters">
+      <button class="filter active">الكل</button>
+      <button class="filter">عالية</button>
+      <button class="filter">متوسطة</button>
+      <button class="filter">منخفضة</button>
+    </div>
+
+    <div class="cards" style="margin-top:10px">
+
+      <div class="card" onclick="openFacility()">
+        <div>
+          <h3>مطعم الذواقة</h3>
+          <p>مطعم ومقهى<br>حي الشاطئ - الدمام</p>
+        </div>
+        <div class="risk red">
+          87%
+          <small>عالية</small>
+        </div>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>مغسلة سيارات الخليج</h3>
+          <p>خدمات مركبات<br>حي الفيصلية - الدمام</p>
+        </div>
+        <div class="risk orange">
+          62%
+          <small>متوسطة</small>
+        </div>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>سوبر ماركت النور</h3>
+          <p>أسواق وتموينات<br>حي المنار - الدمام</p>
+        </div>
+        <div class="risk orange">
+          41%
+          <small>متوسطة</small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="tasks" class="page">
+  <div class="back-header">
+    <h2>مهامي اليوم</h2>
+  </div>
+
+  <div class="section">
+    <div class="panel success">
+      🤖 تم ترتيب المسار تلقائياً حسب مستوى الخطورة وقرب الموقع.
+    </div>
+
+    <button class="btn">بدء المسار الذكي</button>
+
+    <div style="margin-top:18px">
+
+      <div class="task">
+        <div class="number">1</div>
+        <div class="task-info">
+          <h4>مطعم الذواقة</h4>
+          <p>حي الشاطئ • 1.2 كم</p>
+        </div>
+        <span class="tag red">عالية</span>
+      </div>
+
+      <div class="task">
+        <div class="number">2</div>
+        <div class="task-info">
+          <h4>مغسلة سيارات الخليج</h4>
+          <p>حي الفيصلية • 2.4 كم</p>
+        </div>
+        <span class="tag orange">متوسطة</span>
+      </div>
+
+      <div class="task">
+        <div class="number">3</div>
+        <div class="task-info">
+          <h4>سوبر ماركت النور</h4>
+          <p>حي المنار • 3.1 كم</p>
+        </div>
+        <span class="tag orange">متوسطة</span>
+      </div>
+
+      <div class="task">
+        <div class="number">4</div>
+        <div class="task-info">
+          <h4>مستودع الأمان</h4>
+          <p>حي الصناعية • 4.8 كم</p>
+        </div>
+        <span class="tag green">منخفضة</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="ai" class="page">
+  <div class="back-header">
+    <h2>تحليل الذكاء الاصطناعي</h2>
+  </div>
+
+  <div class="section">
+    <div class="panel ai-score">
+      <div>مستوى المخاطرة المتوقع</div>
+      <strong>87%</strong>
+      <div style="color:#e53935;font-weight:bold">مخاطرة عالية</div>
+    </div>
+
+    <div class="panel">
+
+      <h3>العوامل المؤثرة</h3>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>شكاوى سابقة</span>
+          <b>90%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:90%"></div>
+        </div>
+      </div>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>بيانات التراخيص</span>
+          <b>75%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:75%"></div>
+        </div>
+      </div>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>نتائج التفتيش السابقة</span>
+          <b>68%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:68%"></div>
+        </div>
+      </div>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>طبيعة النشاط</span>
+          <b>52%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:52%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel success">
+      <b>توصية النظام:</b><br>
+      يوصى بزيارة ميدانية خلال 7 أيام.
+    </div>
+  </div>
+</div>
+
+
+<div id="reports" class="page">
+  <div class="back-header">
+    <h2>التقارير والإحصائيات</h2>
+  </div>
+
+  <div class="section">
+
+    <div class="stats">
+      <div class="stat">
+        <b>156</b>
+        <small>زيارة</small>
+      </div>
+
+      <div class="stat">
+        <b style="color:#e53935">42</b>
+        <small>مخالفة</small>
+      </div>
+
+      <div class="stat">
+        <b style="color:#0a8a52">98</b>
+        <small>مطابق</small>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <h3>توزيع المخاطر</h3>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>عالية</span>
+          <b>27%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:27%;background:#e53935"></div>
+        </div>
+      </div>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>متوسطة</span>
+          <b>46%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:46%;background:#ff9800"></div>
+        </div>
+      </div>
+
+      <div class="factor">
+        <div class="factor-line">
+          <span>منخفضة</span>
+          <b>27%</b>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:27%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="facility" class="page">
+
+  <div class="back-header">
+    <button onclick="goPage('home')">←</button>
+    <h2>تفاصيل المنشأة</h2>
+  </div>
+
+  <div class="section">
+    <div class="panel">
+
+      <h2>مطعم الذواقة</h2>
+      <p style="color:#718078;margin-top:7px">
+        مطعم ومقهى • حي الشاطئ - الدمام
+      </p>
+
+      <div class="alert-box">
+        ⚠️ <b>مستوى المخاطرة: 87%</b><br><br>
+        • وجود مخالفات سابقة<br>
+        • ارتفاع عدد الشكاوى مؤخراً<br>
+        • قرب انتهاء بعض التراخيص<br>
+        • نشاط عالي الحساسية
+      </div>
+
+      <button class="btn" onclick="goPage('ai')">
+        عرض تحليل الذكاء الاصطناعي
+      </button>
+
+      <button class="btn" onclick="saveInspection()" style="background:#174f39">
+        تسجيل نتيجة التفتيش
+      </button>
+
+      <div id="savedMsg"></div>
+
+    </div>
+  </div>
+</div>
+
+
+<nav id="nav">
+  <button class="active" onclick="goPage('home',this)">
+    <span>⌂</span>
+    الرئيسية
+  </button>
+
+  <button onclick="goPage('tasks',this)">
+    <span>✓</span>
+    المهام
+  </button>
+
+  <button onclick="goPage('ai',this)">
+    <span>AI</span>
+    التحليل
+  </button>
+
+  <button onclick="goPage('reports',this)">
+    <span>▥</span>
+    التقارير
+  </button>
+</nav>
+
+
+<script>
+  function goPage(id, button){
+    document.querySelectorAll('.page').forEach(page=>{
+      page.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+
+    document.querySelectorAll('nav button').forEach(btn=>{
+      btn.classList.remove('active');
+    });
+
+    if(button){
+      button.classList.add('active');
+    }
+
+    window.scrollTo({
+      top:0,
+      behavior:'smooth'
+    });
+  }
+
+  function openFacility(){
+    goPage('facility');
+  }
+
+  function saveInspection(){
+    document.getElementById('savedMsg').innerHTML =
+      '<div class="panel success">✅ تم تسجيل نتيجة التفتيش بنجاح في النموذج التجريبي.</div>';
+  }
+
+  document.querySelectorAll('.filter').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
