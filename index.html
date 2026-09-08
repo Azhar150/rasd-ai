@@ -279,25 +279,7 @@ input[type=file]{display:none}
   <span id="inspectionLocation">جاري تحديد الموقع...</span>
  </div>
 
- <div class="checkItem">
-  <span id="check1">سلامة الموقع</span>
-  <input type="checkbox">
- </div>
-
- <div class="checkItem">
-  <span id="check2">النظافة العامة</span>
-  <input type="checkbox">
- </div>
-
- <div class="checkItem">
-  <span id="check3">الالتزام بالاشتراطات</span>
-  <input type="checkbox">
- </div>
-
- <div class="checkItem">
-  <span id="check4">عدم وجود مخالفة ظاهرة</span>
-  <input type="checkbox">
- </div>
+<div id="checklist"></div>
 
  <br>
 
@@ -544,11 +526,144 @@ function beginInspection(){
  document.getElementById("inspectionEst")
  .textContent=est;
 
+buildChecklist();
  go("inspection");
 
  getInspectionLocation();
 }
+function buildChecklist(){
 
+ const lists={
+  commercial:{
+   ar:[
+    "صلاحية الرخصة",
+    "النظافة العامة",
+    "سلامة حفظ الأغذية",
+    "الالتزام بالاشتراطات الصحية",
+    "سلامة اللوحات والمداخل"
+   ],
+   en:[
+    "Valid license",
+    "General cleanliness",
+    "Food storage safety",
+    "Health requirements compliance",
+    "Signage and entrance safety"
+   ]
+  },
+
+  construction:{
+   ar:[
+    "وجود حواجز السلامة",
+    "عدم وجود مخلفات بناء",
+    "سلامة الموقع",
+    "عدم إعاقة الطريق",
+    "الالتزام بالتصاريح"
+   ],
+   en:[
+    "Safety barriers",
+    "No construction waste",
+    "Site safety",
+    "No road obstruction",
+    "Permit compliance"
+   ]
+  },
+
+  cleanliness:{
+   ar:[
+    "نظافة الموقع",
+    "عدم تراكم النفايات",
+    "سلامة الحاويات",
+    "نظافة الطريق",
+    "عدم وجود مخلفات عشوائية"
+   ],
+   en:[
+    "Site cleanliness",
+    "No waste accumulation",
+    "Bins condition",
+    "Road cleanliness",
+    "No random dumping"
+   ]
+  },
+
+  facilities:{
+   ar:[
+    "سلامة الإنارة",
+    "سلامة الأرصفة",
+    "سلامة المرافق",
+    "عدم وجود تلف ظاهر",
+    "صلاحية الموقع للاستخدام"
+   ],
+   en:[
+    "Lighting condition",
+    "Sidewalk condition",
+    "Facility condition",
+    "No visible damage",
+    "Safe for public use"
+   ]
+  }
+ };
+
+ const items=lists[selectedTour][lang];
+ const box=document.getElementById("checklist");
+ box.innerHTML="";
+
+ items.forEach((item,index)=>{
+
+  const row=document.createElement("div");
+  row.className="resultRow";
+
+  row.innerHTML=`
+   <b>${item}</b>
+
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px">
+
+    <button class="secondary"
+     onclick="setCheck(this,'ok',${index})">
+     ✅ ${lang==="ar"?"مطابق":"Pass"}
+    </button>
+
+    <button class="secondary"
+     onclick="setCheck(this,'bad',${index})">
+     ❌ ${lang==="ar"?"غير مطابق":"Fail"}
+    </button>
+
+    <button class="secondary"
+     onclick="setCheck(this,'na',${index})">
+     ➖ ${lang==="ar"?"لا ينطبق":"N/A"}
+    </button>
+
+   </div>
+
+   <div id="violation-${index}"
+    style="display:none;margin-top:10px">
+
+    <button class="primary"
+     onclick="go('camera')">
+     📷 ${lang==="ar"?"تصوير المخالفة":"Capture Violation"}
+    </button>
+
+   </div>
+  `;
+
+  box.appendChild(row);
+ });
+}
+
+function setCheck(btn,status,index){
+
+ const group=btn.parentElement;
+
+ group.querySelectorAll("button").forEach(b=>{
+  b.style.outline="none";
+  b.style.opacity=".55";
+ });
+
+ btn.style.opacity="1";
+ btn.style.outline="2px solid #006b56";
+
+ document.getElementById("violation-"+index).style.display=
+ status==="bad" ? "block" : "none";
+}
 function getInspectionLocation(){
 
  const el=document.getElementById("inspectionLocation");
