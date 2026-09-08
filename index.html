@@ -85,9 +85,52 @@ input[type=file]{display:none}
 .nav button{background:none;color:#777;font-size:12px}
 .nav button.active{color:#006b56;font-weight:800}
 .nav span{display:block;font-size:23px;margin-bottom:2px}
+
 .tour{
  background:#e9f5f1;border:1px solid #cde6dc;
- padding:13px;border-radius:15px;margin-top:10px
+ padding:13px;border-radius:15px;margin-top:10px;
+ cursor:pointer
+}
+
+.tour.selected{
+ border:2px solid #006b56;
+ background:#dff3ec;
+}
+
+.field{
+ margin-top:15px
+}
+.field label{
+ display:block;
+ font-weight:800;
+ margin-bottom:7px
+}
+.field input,.field select,.field textarea{
+ width:100%;
+ padding:14px;
+ border:1px solid #d7e5df;
+ border-radius:14px;
+ background:#fafcfb;
+ font:inherit
+}
+.field textarea{
+ min-height:100px;
+ resize:vertical
+}
+
+.statusBox{
+ background:#eef8f4;
+ padding:14px;
+ border-radius:15px;
+ margin-top:14px
+}
+
+.checkItem{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:14px 0;
+ border-bottom:1px solid #eee
 }
 </style>
 </head>
@@ -118,28 +161,25 @@ input[type=file]{display:none}
 <div class="card">
  <h2 id="tourTitle">الجولات التفتيشية</h2>
 
- <div class="tour">
+ <div class="tour" onclick="chooseTour('commercial')">
   🏪 <b id="tour1">جولة المنشآت التجارية</b>
   <div class="small" id="tour1s">مطاعم، مقاهي، متاجر</div>
  </div>
 
- <div class="tour">
+ <div class="tour" onclick="chooseTour('construction')">
   🏗️ <b id="tour2">جولة البناء والتشوه البصري</b>
   <div class="small" id="tour2s">مخلفات، حواجز، أعمال إنشاء</div>
  </div>
 
- <div class="tour">
+ <div class="tour" onclick="chooseTour('cleanliness')">
   🧹 <b id="tour3">جولة النظافة العامة</b>
   <div class="small" id="tour3s">نفايات وحاويات ونظافة الطرق</div>
  </div>
 
- <div class="tour">
+ <div class="tour" onclick="chooseTour('facilities')">
   💡 <b id="tour4">جولة المرافق العامة</b>
   <div class="small" id="tour4s">إنارة، أرصفة، حدائق ومرافق</div>
  </div>
-
- <br>
- <button class="primary" onclick="startTour()" id="startTour">▶ بدء جولة تفتيش</button>
 </div>
 
 <div class="card">
@@ -148,18 +188,137 @@ input[type=file]{display:none}
   <button class="action" onclick="go('camera')">
    <div class="icon">📷</div><span id="captureTxt">تصوير مخالفة</span>
   </button>
+
   <button class="action" onclick="getLocation()">
    <div class="icon">📍</div><span id="locTxt">تحديد الموقع</span>
   </button>
+
   <button class="action" onclick="go('tasks')">
    <div class="icon">📋</div><span id="tasksTxt">مهامي</span>
   </button>
+
   <button class="action">
    <div class="icon">📊</div><span id="reportsTxt">التقارير</span>
   </button>
  </div>
 </div>
 </div>
+
+<!-- صفحة الجولة -->
+
+<div id="tourPage" class="page">
+<header>
+ <div class="top">
+  <button class="lang" onclick="go('home')">←</button>
+  <h2 id="tourPageTitle">بدء الجولة</h2>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+</header>
+
+<div class="card">
+
+ <h2 id="selectedTourName">الجولة التفتيشية</h2>
+
+ <div class="statusBox">
+  <b id="tourStatusLabel">حالة الجولة:</b>
+  <span id="tourStatus">جاهزة للبدء</span>
+ </div>
+
+ <div class="field">
+  <label id="establishmentLabel">اسم المنشأة / الموقع</label>
+  <input id="establishment"
+   placeholder="مثال: مطعم الواجهة">
+ </div>
+
+ <div class="field">
+  <label id="licenseLabel">رقم الرخصة</label>
+  <input id="license"
+   placeholder="اختياري">
+ </div>
+
+ <div class="field">
+  <label id="notesLabel">ملاحظات المفتش</label>
+  <textarea id="tourNotes"
+   placeholder="اكتب أي ملاحظات قبل بدء الجولة"></textarea>
+ </div>
+
+ <br>
+
+ <button class="primary"
+ onclick="beginInspection()"
+ id="beginInspectionBtn">
+ ▶ بدء التفتيش
+ </button>
+
+</div>
+</div>
+
+<!-- التفتيش الجاري -->
+
+<div id="inspection" class="page">
+
+<header>
+ <div class="top">
+  <button class="lang" onclick="go('tourPage')">←</button>
+  <h2 id="inspectionTitle">الجولة الجارية</h2>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+</header>
+
+<div class="card">
+
+ <h2 id="inspectionTourName"></h2>
+
+ <div class="resultRow">
+  <b id="inspectionEstLabel">المنشأة</b>
+  <span id="inspectionEst"></span>
+ </div>
+
+ <div class="resultRow">
+  <b id="inspectionLocationLabel">الموقع</b>
+  <span id="inspectionLocation">جاري تحديد الموقع...</span>
+ </div>
+
+ <div class="checkItem">
+  <span id="check1">سلامة الموقع</span>
+  <input type="checkbox">
+ </div>
+
+ <div class="checkItem">
+  <span id="check2">النظافة العامة</span>
+  <input type="checkbox">
+ </div>
+
+ <div class="checkItem">
+  <span id="check3">الالتزام بالاشتراطات</span>
+  <input type="checkbox">
+ </div>
+
+ <div class="checkItem">
+  <span id="check4">عدم وجود مخالفة ظاهرة</span>
+  <input type="checkbox">
+ </div>
+
+ <br>
+
+ <button class="primary"
+ onclick="go('camera')"
+ id="captureViolationBtn">
+ 📷 تصوير مخالفة
+ </button>
+
+ <br><br>
+
+ <button class="secondary"
+ onclick="finishInspection()"
+ id="finishInspectionBtn">
+ ✓ إنهاء الجولة
+ </button>
+
+</div>
+</div>
+
+<!-- الكاميرا -->
 
 <div id="camera" class="page">
 <header>
@@ -171,6 +330,7 @@ input[type=file]{display:none}
 </header>
 
 <div class="card">
+
  <label for="photo">
   <div class="cameraBox" id="preview">
    <div>
@@ -179,16 +339,28 @@ input[type=file]{display:none}
    </div>
   </div>
  </label>
- <input id="photo" type="file" accept="image/*" capture="environment"
+
+ <input id="photo"
+ type="file"
+ accept="image/*"
+ capture="environment"
  onchange="previewPhoto(event)">
+
  <br>
- <button class="primary" onclick="analyze()" id="analyzeBtn">
-  ✨ تحليل بالذكاء الاصطناعي
+
+ <button class="primary"
+ onclick="analyze()"
+ id="analyzeBtn">
+ ✨ تحليل بالذكاء الاصطناعي
  </button>
+
 </div>
 </div>
 
+<!-- التحليل -->
+
 <div id="analysis" class="page">
+
 <header>
  <div class="top">
   <button class="lang" onclick="go('camera')">←</button>
@@ -198,6 +370,7 @@ input[type=file]{display:none}
 </header>
 
 <div class="card">
+
  <div class="resultRow">
   <b id="typeLabel">نوع المخالفة</b>
   <span id="typeValue">رمي مخلفات وأنقاض</span>
@@ -215,20 +388,33 @@ input[type=file]{display:none}
 
  <div class="resultRow">
   <b id="descLabel">الوصف المقترح</b>
-  <span id="descValue">تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.</span>
+  <span id="descValue">
+   تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.
+  </span>
  </div>
 
  <div class="resultRow">
   <b id="actionLabel">الإجراء المقترح</b>
-  <span id="actionValue">إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.</span>
+  <span id="actionValue">
+   إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.
+  </span>
  </div>
 
  <br>
- <button class="primary" onclick="saveReport()" id="saveBtn">✓ تسجيل المخالفة</button>
+
+ <button class="primary"
+ onclick="saveReport()"
+ id="saveBtn">
+ ✓ تسجيل المخالفة
+ </button>
+
 </div>
 </div>
 
+<!-- المهام -->
+
 <div id="tasks" class="page">
+
 <header>
  <div class="top">
   <button class="lang" onclick="go('home')">←</button>
@@ -238,163 +424,485 @@ input[type=file]{display:none}
 </header>
 
 <div class="card">
+
  <div class="task">
-  <div><b>مخلفات وأنقاض</b><div class="small">120 م</div></div>
+  <div>
+   <b>مخلفات وأنقاض</b>
+   <div class="small">120 م</div>
+  </div>
   <span class="badge high">عالية</span>
  </div>
+
  <div class="task">
-  <div><b>حاوية ممتلئة</b><div class="small">350 م</div></div>
+  <div>
+   <b>حاوية ممتلئة</b>
+   <div class="small">350 م</div>
+  </div>
   <span class="badge medium">متوسطة</span>
  </div>
+
  <div class="task">
-  <div><b>إنارة معطلة</b><div class="small">750 م</div></div>
+  <div>
+   <b>إنارة معطلة</b>
+   <div class="small">750 م</div>
+  </div>
   <span class="badge low">منخفضة</span>
  </div>
+
 </div>
 </div>
 
 <div class="nav">
- <button class="active" onclick="go('home',this)"><span>🏠</span><i id="n1">الرئيسية</i></button>
- <button onclick="go('tasks',this)"><span>📋</span><i id="n2">مهامي</i></button>
- <button onclick="go('camera',this)"><span>📷</span><i id="n3">رصد</i></button>
- <button><span>👤</span><i id="n4">حسابي</i></button>
+
+ <button class="active"
+ onclick="go('home',this)">
+  <span>🏠</span><i id="n1">الرئيسية</i>
+ </button>
+
+ <button onclick="go('tasks',this)">
+  <span>📋</span><i id="n2">مهامي</i>
+ </button>
+
+ <button onclick="go('camera',this)">
+  <span>📷</span><i id="n3">رصد</i>
+ </button>
+
+ <button>
+  <span>👤</span><i id="n4">حسابي</i>
+ </button>
+
 </div>
 
 <script>
+
 let lang="ar";
+let selectedTour="";
+
+const tours={
+ commercial:{
+  ar:"جولة المنشآت التجارية",
+  en:"Commercial Facilities"
+ },
+ construction:{
+  ar:"جولة البناء والتشوه البصري",
+  en:"Construction & Visual Pollution"
+ },
+ cleanliness:{
+  ar:"جولة النظافة العامة",
+  en:"Public Cleanliness"
+ },
+ facilities:{
+  ar:"جولة المرافق العامة",
+  en:"Public Facilities"
+ }
+};
 
 function go(id,btn){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+ document.querySelectorAll(".page")
+ .forEach(p=>p.classList.remove("active"));
+
  document.getElementById(id).classList.add("active");
- document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+
+ document.querySelectorAll(".nav button")
+ .forEach(b=>b.classList.remove("active"));
+
  if(btn)btn.classList.add("active");
+
  window.scrollTo(0,0);
 }
 
+function chooseTour(type){
+
+ selectedTour=type;
+
+ document.getElementById("selectedTourName")
+ .textContent=tours[type][lang];
+
+ document.querySelectorAll(".tour")
+ .forEach(t=>t.classList.remove("selected"));
+
+ go("tourPage");
+}
+
+function beginInspection(){
+
+ const est=document.getElementById("establishment").value.trim();
+
+ if(!est){
+  alert(
+   lang==="ar"
+   ?"اكتب اسم المنشأة أو الموقع أولاً"
+   :"Enter the establishment or location first"
+  );
+  return;
+ }
+
+ document.getElementById("inspectionTourName")
+ .textContent=tours[selectedTour][lang];
+
+ document.getElementById("inspectionEst")
+ .textContent=est;
+
+ go("inspection");
+
+ getInspectionLocation();
+}
+
+function getInspectionLocation(){
+
+ const el=document.getElementById("inspectionLocation");
+
+ if(!navigator.geolocation){
+  el.textContent=
+  lang==="ar"
+  ?"الموقع غير مدعوم"
+  :"Location unavailable";
+  return;
+ }
+
+ navigator.geolocation.getCurrentPosition(
+
+  p=>{
+   el.textContent=
+   p.coords.latitude.toFixed(5)+
+   ", "+
+   p.coords.longitude.toFixed(5);
+  },
+
+  ()=>{
+   el.textContent=
+   lang==="ar"
+   ?"تعذر الوصول للموقع"
+   :"Could not access location";
+  }
+
+ );
+}
+
+function finishInspection(){
+
+ alert(
+  lang==="ar"
+  ?"✅ تم إنهاء الجولة وحفظ البيانات"
+  :"✅ Inspection completed and saved"
+ );
+
+ go("home");
+}
+
 function previewPhoto(e){
+
  const file=e.target.files[0];
+
  if(!file)return;
+
  const img=document.createElement("img");
+
  img.src=URL.createObjectURL(file);
+
  const box=document.getElementById("preview");
+
  box.innerHTML="";
+
  box.appendChild(img);
 }
 
 function analyze(){
+
+ const photo=document.getElementById("photo");
+
+ if(!photo.files.length){
+
+  alert(
+   lang==="ar"
+   ?"📷 التقط صورة أولاً"
+   :"📷 Capture a photo first"
+  );
+
+  return;
+ }
+
  go("analysis");
+
  getLocation();
 }
 
 function getLocation(){
+
+ const locationEl=
+ document.getElementById("locationValue");
+
+ if(!locationEl)return;
+
  if(!navigator.geolocation){
-  document.getElementById("locationValue").textContent=
-  lang==="ar"?"الموقع غير مدعوم":"Location unavailable";
+
+  locationEl.textContent=
+  lang==="ar"
+  ?"الموقع غير مدعوم"
+  :"Location unavailable";
+
   return;
  }
+
  navigator.geolocation.getCurrentPosition(
+
   p=>{
-   document.getElementById("locationValue").textContent=
-   p.coords.latitude.toFixed(5)+", "+p.coords.longitude.toFixed(5);
+
+   locationEl.textContent=
+   p.coords.latitude.toFixed(5)+
+   ", "+
+   p.coords.longitude.toFixed(5);
+
   },
+
   ()=>{
-   document.getElementById("locationValue").textContent=
-   lang==="ar"?"تعذر الوصول للموقع":"Could not access location";
+
+   locationEl.textContent=
+   lang==="ar"
+   ?"تعذر الوصول للموقع"
+   :"Could not access location";
+
   }
+
  );
 }
 
-function startTour(){
- alert(lang==="ar"?"✅ تم بدء الجولة التفتيشية":"✅ Inspection tour started");
-}
-
 function saveReport(){
- alert(lang==="ar"?"✅ تم تسجيل المخالفة بنجاح":"✅ Violation submitted successfully");
+
+ alert(
+  lang==="ar"
+  ?"✅ تم تسجيل المخالفة بنجاح"
+  :"✅ Violation submitted successfully"
+ );
+
  go("home");
 }
 
 function toggleLang(){
+
  lang=lang==="ar"?"en":"ar";
+
  document.documentElement.lang=lang;
- document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+
+ document.documentElement.dir=
+ lang==="ar"?"rtl":"ltr";
 
  const t={
+
  ar:{
+
  tagline:"لمدن أجمل وأكثر أمانًا",
  welcome:"أهلاً بك، مفتش البلدية 👋",
  today:"جولات ومهام اليوم",
- s1:"مهام اليوم",s2:"تم الإنجاز",s3:"قيد المعالجة",
+
+ s1:"مهام اليوم",
+ s2:"تم الإنجاز",
+ s3:"قيد المعالجة",
+
  tourTitle:"الجولات التفتيشية",
+
  tour1:"جولة المنشآت التجارية",
  tour1s:"مطاعم، مقاهي، متاجر",
+
  tour2:"جولة البناء والتشوه البصري",
  tour2s:"مخلفات، حواجز، أعمال إنشاء",
+
  tour3:"جولة النظافة العامة",
  tour3s:"نفايات وحاويات ونظافة الطرق",
+
  tour4:"جولة المرافق العامة",
  tour4s:"إنارة، أرصفة، حدائق ومرافق",
- startTour:"▶ بدء جولة تفتيش",
+
  quick:"إجراءات سريعة",
- captureTxt:"تصوير مخالفة",locTxt:"تحديد الموقع",
- tasksTxt:"مهامي",reportsTxt:"التقارير",
+
+ captureTxt:"تصوير مخالفة",
+ locTxt:"تحديد الموقع",
+ tasksTxt:"مهامي",
+ reportsTxt:"التقارير",
+
+ tourPageTitle:"بدء الجولة",
+ tourStatusLabel:"حالة الجولة:",
+ tourStatus:"جاهزة للبدء",
+
+ establishmentLabel:"اسم المنشأة / الموقع",
+ licenseLabel:"رقم الرخصة",
+ notesLabel:"ملاحظات المفتش",
+
+ beginInspectionBtn:"▶ بدء التفتيش",
+
+ inspectionTitle:"الجولة الجارية",
+ inspectionEstLabel:"المنشأة",
+ inspectionLocationLabel:"الموقع",
+
+ check1:"سلامة الموقع",
+ check2:"النظافة العامة",
+ check3:"الالتزام بالاشتراطات",
+ check4:"عدم وجود مخالفة ظاهرة",
+
+ captureViolationBtn:"📷 تصوير مخالفة",
+ finishInspectionBtn:"✓ إنهاء الجولة",
+
  camTitle:"تصوير المخالفة",
  photoHelp:"اضغط لالتقاط أو اختيار صورة",
  analyzeBtn:"✨ تحليل بالذكاء الاصطناعي",
+
  analysisTitle:"نتيجة التحليل الذكي",
- typeLabel:"نوع المخالفة",typeValue:"رمي مخلفات وأنقاض",
- severityLabel:"درجة الخطورة",severityValue:"عالية",
+
+ typeLabel:"نوع المخالفة",
+ typeValue:"رمي مخلفات وأنقاض",
+
+ severityLabel:"درجة الخطورة",
+ severityValue:"عالية",
+
  locationLabel:"الموقع",
+
  descLabel:"الوصف المقترح",
- descValue:"تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.",
+
+ descValue:
+ "تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.",
+
  actionLabel:"الإجراء المقترح",
- actionValue:"إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.",
+
+ actionValue:
+ "إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.",
+
  saveBtn:"✓ تسجيل المخالفة",
+
  tasksTitle:"مهام المفتش",
- n1:"الرئيسية",n2:"مهامي",n3:"رصد",n4:"حسابي"
+
+ n1:"الرئيسية",
+ n2:"مهامي",
+ n3:"رصد",
+ n4:"حسابي"
+
  },
+
  en:{
+
  tagline:"Smarter cities. Safer communities.",
+
  welcome:"Welcome, Municipal Inspector 👋",
+
  today:"Today's tours and tasks",
- s1:"Today's Tasks",s2:"Completed",s3:"In Progress",
+
+ s1:"Today's Tasks",
+ s2:"Completed",
+ s3:"In Progress",
+
  tourTitle:"Inspection Tours",
+
  tour1:"Commercial Facilities",
  tour1s:"Restaurants, cafés and shops",
+
  tour2:"Construction & Visual Pollution",
  tour2s:"Waste, barriers and construction",
+
  tour3:"Public Cleanliness",
  tour3s:"Waste, bins and street cleanliness",
+
  tour4:"Public Facilities",
  tour4s:"Lighting, sidewalks, parks and facilities",
- startTour:"▶ Start Inspection Tour",
+
  quick:"Quick Actions",
- captureTxt:"Capture Violation",locTxt:"Get Location",
- tasksTxt:"My Tasks",reportsTxt:"Reports",
+
+ captureTxt:"Capture Violation",
+ locTxt:"Get Location",
+ tasksTxt:"My Tasks",
+ reportsTxt:"Reports",
+
+ tourPageTitle:"Start Inspection",
+
+ tourStatusLabel:"Tour status:",
+ tourStatus:"Ready to start",
+
+ establishmentLabel:"Establishment / Location",
+ licenseLabel:"License Number",
+ notesLabel:"Inspector Notes",
+
+ beginInspectionBtn:"▶ Start Inspection",
+
+ inspectionTitle:"Active Inspection",
+
+ inspectionEstLabel:"Establishment",
+
+ inspectionLocationLabel:"Location",
+
+ check1:"Site Safety",
+ check2:"General Cleanliness",
+ check3:"Compliance Requirements",
+ check4:"No Visible Violation",
+
+ captureViolationBtn:"📷 Capture Violation",
+
+ finishInspectionBtn:"✓ Finish Inspection",
+
  camTitle:"Capture Violation",
+
  photoHelp:"Tap to capture or select a photo",
+
  analyzeBtn:"✨ Analyze with AI",
+
  analysisTitle:"Smart Analysis Result",
- typeLabel:"Violation Type",typeValue:"Waste & Debris",
- severityLabel:"Severity",severityValue:"High",
+
+ typeLabel:"Violation Type",
+ typeValue:"Waste & Debris",
+
+ severityLabel:"Severity",
+ severityValue:"High",
+
  locationLabel:"Location",
+
  descLabel:"Suggested Description",
- descValue:"Waste was detected in an unauthorized area affecting cleanliness and public appearance.",
+
+ descValue:
+ "Waste was detected in an unauthorized area affecting cleanliness and public appearance.",
+
  actionLabel:"Suggested Action",
- actionValue:"Assign to the relevant team, remove waste and document completion.",
+
+ actionValue:
+ "Assign to the relevant team, remove waste and document completion.",
+
  saveBtn:"✓ Submit Violation",
+
  tasksTitle:"Inspector Tasks",
- n1:"Home",n2:"Tasks",n3:"Capture",n4:"Account"
- }};
+
+ n1:"Home",
+ n2:"Tasks",
+ n3:"Capture",
+ n4:"Account"
+
+ }
+
+ };
 
  Object.keys(t[lang]).forEach(id=>{
+
   const el=document.getElementById(id);
+
   if(el)el.textContent=t[lang][id];
+
  });
 
+ if(selectedTour){
+
+  document.getElementById("selectedTourName")
+  .textContent=tours[selectedTour][lang];
+
+ }
+
  document.querySelectorAll(".lang").forEach(b=>{
-  if(!b.textContent.includes("←"))b.textContent=lang==="ar"?"EN":"عربي";
+
+  if(!b.textContent.includes("←"))
+
+   b.textContent=
+   lang==="ar"?"EN":"عربي";
+
  });
+
 }
+
 </script>
+
 </body>
 </html>
