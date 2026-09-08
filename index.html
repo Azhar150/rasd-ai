@@ -335,7 +335,9 @@ input[type=file]{display:none}
  id="analyzeBtn">
  ✨ تحليل بالذكاء الاصطناعي
  </button>
-
+<button class="secondary" onclick="deletePhoto()">
+🗑️ حذف الصورة
+</button>
 </div>
 </div>
 
@@ -741,6 +743,12 @@ function analyze(){
  go("analysis");
 
  getLocation();
+}function deletePhoto(){
+  const photo = document.getElementById("photo");
+  const preview = document.getElementById("preview");
+
+  photo.value = "";
+  preview.innerHTML = "";
 }
 
 function getLocation(){
