@@ -1,818 +1,400 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>رصد AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>رصد | RASD</title>
 
-  <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
-    }
-
-    body{
-      background:#f3f6f4;
-      color:#14251d;
-      max-width:520px;
-      margin:auto;
-      min-height:100vh;
-      padding-bottom:90px;
-    }
-
-    header{
-      background:linear-gradient(135deg,#005c3b,#008951);
-      color:white;
-      padding:28px 20px 22px;
-      border-radius:0 0 26px 26px;
-    }
-
-    .top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .logo{
-      font-size:29px;
-      font-weight:900;
-    }
-
-    .logo span{
-      font-size:15px;
-      opacity:.8;
-    }
-
-    .badge{
-      background:#ffffff22;
-      padding:8px 12px;
-      border-radius:20px;
-      font-size:13px;
-    }
-
-    h1{
-      margin-top:24px;
-      font-size:22px;
-    }
-
-    .subtitle{
-      font-size:14px;
-      opacity:.85;
-      margin-top:6px;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      margin-top:20px;
-    }
-
-    .stat{
-      background:white;
-      color:#173628;
-      padding:13px 8px;
-      border-radius:15px;
-      text-align:center;
-    }
-
-    .stat b{
-      display:block;
-      font-size:22px;
-    }
-
-    .stat small{
-      color:#718078;
-    }
-
-    .section{
-      padding:18px 15px 4px;
-    }
-
-    .section-title{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:12px;
-    }
-
-    .section-title h2{
-      font-size:18px;
-    }
-
-    .map{
-      height:270px;
-      border-radius:22px;
-      position:relative;
-      overflow:hidden;
-      background:
-        linear-gradient(30deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
-        linear-gradient(150deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
-        linear-gradient(30deg,#e9eee9 12%,transparent 12.5%,transparent 87%,#e9eee9 87.5%,#e9eee9),
-        #fff;
-      background-size:70px 120px;
-      border:1px solid #e2e8e4;
-    }
-
-    .road{
-      position:absolute;
-      background:#d8ddd9;
-      opacity:.7;
-    }
-
-    .r1{
-      width:700px;
-      height:20px;
-      transform:rotate(17deg);
-      top:120px;
-      right:-100px;
-    }
-
-    .r2{
-      width:600px;
-      height:14px;
-      transform:rotate(-24deg);
-      top:145px;
-      right:-50px;
-    }
-
-    .marker{
-      position:absolute;
-      width:40px;
-      height:40px;
-      border-radius:50% 50% 50% 4px;
-      transform:rotate(-45deg);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-weight:800;
-      box-shadow:0 5px 14px #0002;
-      cursor:pointer;
-    }
-
-    .marker span{
-      transform:rotate(45deg);
-      font-size:11px;
-    }
-
-    .red{background:#e53935}
-    .orange{background:#ff9800}
-    .green{background:#16a05d}
-
-    .m1{top:48px; right:64px}
-    .m2{top:110px; right:180px}
-    .m3{top:178px; right:70px}
-    .m4{top:73px; left:55px}
-    .m5{bottom:28px; left:140px}
-
-    .legend{
-      display:flex;
-      gap:12px;
-      font-size:12px;
-      background:#fff;
-      border-radius:13px;
-      padding:10px;
-      position:absolute;
-      bottom:10px;
-      right:10px;
-    }
-
-    .dot{
-      width:9px;
-      height:9px;
-      border-radius:50%;
-      display:inline-block;
-      margin-left:4px;
-    }
-
-    .filters{
-      display:flex;
-      gap:8px;
-      overflow:auto;
-      padding-bottom:5px;
-    }
-
-    .filter{
-      border:none;
-      background:#fff;
-      border-radius:18px;
-      padding:9px 14px;
-      white-space:nowrap;
-      color:#56645d;
-    }
-
-    .filter.active{
-      background:#087848;
-      color:#fff;
-    }
-
-    .cards{
-      display:flex;
-      flex-direction:column;
-      gap:11px;
-    }
-
-    .card{
-      background:#fff;
-      border-radius:18px;
-      padding:15px;
-      box-shadow:0 4px 14px #23443210;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      cursor:pointer;
-    }
-
-    .card h3{
-      font-size:16px;
-      margin-bottom:6px;
-    }
-
-    .card p{
-      font-size:12px;
-      color:#718078;
-      line-height:1.7;
-    }
-
-    .risk{
-      min-width:62px;
-      height:62px;
-      border-radius:16px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      color:white;
-      font-weight:800;
-    }
-
-    .risk small{
-      font-size:10px;
-    }
-
-    .panel{
-      background:white;
-      padding:16px;
-      border-radius:18px;
-      margin-top:12px;
-    }
-
-    .ai-score{
-      text-align:center;
-      padding:20px;
-    }
-
-    .ai-score strong{
-      font-size:50px;
-      color:#e53935;
-    }
-
-    .factor{
-      margin:15px 0;
-    }
-
-    .factor-line{
-      display:flex;
-      justify-content:space-between;
-      font-size:13px;
-      margin-bottom:7px;
-    }
-
-    .bar{
-      width:100%;
-      background:#edf1ee;
-      height:10px;
-      border-radius:8px;
-      overflow:hidden;
-    }
-
-    .fill{
-      height:100%;
-      background:#0a8a52;
-      border-radius:8px;
-    }
-
-    .task{
-      background:#fff;
-      border-radius:16px;
-      padding:14px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:10px;
-    }
-
-    .number{
-      background:#087848;
-      color:white;
-      width:32px;
-      height:32px;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      font-weight:bold;
-    }
-
-    .task-info{
-      flex:1;
-    }
-
-    .task-info h4{
-      font-size:14px;
-    }
-
-    .task-info p{
-      color:#78867e;
-      font-size:12px;
-      margin-top:4px;
-    }
-
-    .tag{
-      font-size:11px;
-      padding:5px 8px;
-      border-radius:10px;
-      color:white;
-    }
-
-    .btn{
-      width:100%;
-      border:none;
-      padding:14px;
-      border-radius:14px;
-      background:#087848;
-      color:white;
-      font-size:15px;
-      font-weight:700;
-      margin-top:12px;
-      cursor:pointer;
-    }
-
-    nav{
-      position:fixed;
-      bottom:0;
-      right:50%;
-      transform:translateX(50%);
-      width:min(100%,520px);
-      background:white;
-      border-top:1px solid #e3e8e5;
-      padding:10px 8px 18px;
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      z-index:20;
-    }
-
-    nav button{
-      border:0;
-      background:none;
-      color:#7d8a83;
-      font-size:12px;
-      cursor:pointer;
-    }
-
-    nav button span{
-      display:block;
-      font-size:22px;
-      margin-bottom:4px;
-    }
-
-    nav button.active{
-      color:#087848;
-      font-weight:800;
-    }
-
-    .page{
-      display:none;
-    }
-
-    .page.active{
-      display:block;
-    }
-
-    .back-header{
-      padding:20px 16px 10px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .back-header button{
-      border:none;
-      background:white;
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      font-size:18px;
-    }
-
-    .alert-box{
-      background:#fff0ef;
-      border:1px solid #ffd5d2;
-      color:#a12622;
-      border-radius:16px;
-      padding:15px;
-      margin-top:12px;
-      line-height:1.8;
-      font-size:13px;
-    }
-
-    .success{
-      background:#effaf4;
-      border:1px solid #ccebd9;
-      color:#116739;
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ background:#f3f6f4;color:#14251d;
+ max-width:520px;margin:auto;
+ padding-bottom:90px
+}
+header{
+ background:linear-gradient(135deg,#004c3f,#08745e);
+ color:white;padding:24px 18px 30px;
+ border-radius:0 0 28px 28px
+}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:34px;font-weight:900}
+.lang{
+ border:1px solid #ffffff80;background:#ffffff1c;
+ color:white;border-radius:20px;padding:8px 13px
+}
+h2{margin:8px 0}
+.small{font-size:13px;opacity:.75}
+.card{
+ background:white;margin:14px;padding:17px;
+ border-radius:20px;box-shadow:0 4px 18px #0000000b
+}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.stat{
+ background:#f3f8f6;border-radius:16px;padding:14px 5px;text-align:center
+}
+.stat b{font-size:24px;color:#006c57}
+button{
+ border:0;font:inherit;cursor:pointer
+}
+.primary{
+ width:100%;padding:16px;border-radius:16px;
+ background:#006b56;color:white;font-weight:800;font-size:17px
+}
+.secondary{
+ width:100%;padding:14px;border-radius:14px;
+ background:#e8f3ef;color:#005f4d;font-weight:700
+}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action{
+ background:white;border-radius:17px;padding:18px 10px;
+ box-shadow:0 3px 12px #00000009;text-align:center;font-weight:700
+}
+.icon{font-size:30px;margin-bottom:7px}
+.task{
+ padding:13px 0;border-bottom:1px solid #eee;
+ display:flex;justify-content:space-between;align-items:center
+}
+.badge{
+ border-radius:20px;padding:5px 10px;font-size:12px
+}
+.high{background:#ffe5e5;color:#c40000}
+.medium{background:#fff1d7;color:#a35a00}
+.low{background:#e5f6e9;color:#16752c}
+.page{display:none}
+.page.active{display:block}
+.cameraBox{
+ height:300px;background:#1e2926;border-radius:20px;
+ display:flex;align-items:center;justify-content:center;
+ color:white;text-align:center;overflow:hidden
+}
+.cameraBox img{width:100%;height:100%;object-fit:cover}
+input[type=file]{display:none}
+.resultRow{
+ padding:13px 0;border-bottom:1px solid #eee
+}
+.resultRow b{display:block;margin-bottom:5px}
+.nav{
+ position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+ width:min(520px,100%);height:72px;background:white;
+ display:flex;justify-content:space-around;
+ border-top:1px solid #eee;padding-top:8px;z-index:20
+}
+.nav button{background:none;color:#777;font-size:12px}
+.nav button.active{color:#006b56;font-weight:800}
+.nav span{display:block;font-size:23px;margin-bottom:2px}
+.tour{
+ background:#e9f5f1;border:1px solid #cde6dc;
+ padding:13px;border-radius:15px;margin-top:10px
+}
+</style>
 </head>
 
 <body>
 
 <div id="home" class="page active">
-  <header>
-    <div class="top">
-      <div class="logo">رَصْد <span>AI</span></div>
-      <div class="badge">المفتش الاستباقي</div>
-    </div>
-
-    <h1>صباح الخير 👋</h1>
-    <div class="subtitle">هذه أهم المنشآت التي تحتاج انتباهك اليوم</div>
-
-    <div class="stats">
-      <div class="stat">
-        <b>42</b>
-        <small>منشأة</small>
-      </div>
-
-      <div class="stat">
-        <b style="color:#e53935">8</b>
-        <small>خطورة عالية</small>
-      </div>
-
-      <div class="stat">
-        <b style="color:#0a8a52">21</b>
-        <small>تم التفتيش</small>
-      </div>
-    </div>
-  </header>
-
-  <div class="section">
-    <div class="section-title">
-      <h2>خريطة المخاطر</h2>
-      <small>الدمام</small>
-    </div>
-
-    <div class="map">
-      <div class="road r1"></div>
-      <div class="road r2"></div>
-
-      <div class="marker red m1" onclick="openFacility()"><span>87%</span></div>
-      <div class="marker orange m2"><span>62%</span></div>
-      <div class="marker green m3"><span>15%</span></div>
-      <div class="marker red m4"><span>81%</span></div>
-      <div class="marker orange m5"><span>55%</span></div>
-
-      <div class="legend">
-        <div><i class="dot red"></i> عالية</div>
-        <div><i class="dot orange"></i> متوسطة</div>
-        <div><i class="dot green"></i> منخفضة</div>
-      </div>
-    </div>
+<header>
+ <div class="top">
+  <div>
+   <div class="logo">رصد</div>
+   <div id="tagline">لمدن أجمل وأكثر أمانًا</div>
   </div>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+ <h2 id="welcome">أهلاً بك، مفتش البلدية 👋</h2>
+ <div class="small" id="today">جولات ومهام اليوم</div>
+</header>
 
-  <div class="section">
-    <div class="section-title">
-      <h2>أولوية التفتيش</h2>
-    </div>
-
-    <div class="filters">
-      <button class="filter active">الكل</button>
-      <button class="filter">عالية</button>
-      <button class="filter">متوسطة</button>
-      <button class="filter">منخفضة</button>
-    </div>
-
-    <div class="cards" style="margin-top:10px">
-
-      <div class="card" onclick="openFacility()">
-        <div>
-          <h3>مطعم الذواقة</h3>
-          <p>مطعم ومقهى<br>حي الشاطئ - الدمام</p>
-        </div>
-        <div class="risk red">
-          87%
-          <small>عالية</small>
-        </div>
-      </div>
-
-      <div class="card">
-        <div>
-          <h3>مغسلة سيارات الخليج</h3>
-          <p>خدمات مركبات<br>حي الفيصلية - الدمام</p>
-        </div>
-        <div class="risk orange">
-          62%
-          <small>متوسطة</small>
-        </div>
-      </div>
-
-      <div class="card">
-        <div>
-          <h3>سوبر ماركت النور</h3>
-          <p>أسواق وتموينات<br>حي المنار - الدمام</p>
-        </div>
-        <div class="risk orange">
-          41%
-          <small>متوسطة</small>
-        </div>
-      </div>
-
-    </div>
-  </div>
+<div class="card">
+ <div class="stats">
+  <div class="stat"><b>12</b><div id="s1">مهام اليوم</div></div>
+  <div class="stat"><b>8</b><div id="s2">تم الإنجاز</div></div>
+  <div class="stat"><b>4</b><div id="s3">قيد المعالجة</div></div>
+ </div>
 </div>
 
+<div class="card">
+ <h2 id="tourTitle">الجولات التفتيشية</h2>
+
+ <div class="tour">
+  🏪 <b id="tour1">جولة المنشآت التجارية</b>
+  <div class="small" id="tour1s">مطاعم، مقاهي، متاجر</div>
+ </div>
+
+ <div class="tour">
+  🏗️ <b id="tour2">جولة البناء والتشوه البصري</b>
+  <div class="small" id="tour2s">مخلفات، حواجز، أعمال إنشاء</div>
+ </div>
+
+ <div class="tour">
+  🧹 <b id="tour3">جولة النظافة العامة</b>
+  <div class="small" id="tour3s">نفايات وحاويات ونظافة الطرق</div>
+ </div>
+
+ <div class="tour">
+  💡 <b id="tour4">جولة المرافق العامة</b>
+  <div class="small" id="tour4s">إنارة، أرصفة، حدائق ومرافق</div>
+ </div>
+
+ <br>
+ <button class="primary" onclick="startTour()" id="startTour">▶ بدء جولة تفتيش</button>
+</div>
+
+<div class="card">
+ <h2 id="quick">إجراءات سريعة</h2>
+ <div class="grid">
+  <button class="action" onclick="go('camera')">
+   <div class="icon">📷</div><span id="captureTxt">تصوير مخالفة</span>
+  </button>
+  <button class="action" onclick="getLocation()">
+   <div class="icon">📍</div><span id="locTxt">تحديد الموقع</span>
+  </button>
+  <button class="action" onclick="go('tasks')">
+   <div class="icon">📋</div><span id="tasksTxt">مهامي</span>
+  </button>
+  <button class="action">
+   <div class="icon">📊</div><span id="reportsTxt">التقارير</span>
+  </button>
+ </div>
+</div>
+</div>
+
+<div id="camera" class="page">
+<header>
+ <div class="top">
+  <button class="lang" onclick="go('home')">←</button>
+  <h2 id="camTitle">تصوير المخالفة</h2>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+</header>
+
+<div class="card">
+ <label for="photo">
+  <div class="cameraBox" id="preview">
+   <div>
+    <div style="font-size:55px">📷</div>
+    <b id="photoHelp">اضغط لالتقاط أو اختيار صورة</b>
+   </div>
+  </div>
+ </label>
+ <input id="photo" type="file" accept="image/*" capture="environment"
+ onchange="previewPhoto(event)">
+ <br>
+ <button class="primary" onclick="analyze()" id="analyzeBtn">
+  ✨ تحليل بالذكاء الاصطناعي
+ </button>
+</div>
+</div>
+
+<div id="analysis" class="page">
+<header>
+ <div class="top">
+  <button class="lang" onclick="go('camera')">←</button>
+  <h2 id="analysisTitle">نتيجة التحليل الذكي</h2>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+</header>
+
+<div class="card">
+ <div class="resultRow">
+  <b id="typeLabel">نوع المخالفة</b>
+  <span id="typeValue">رمي مخلفات وأنقاض</span>
+ </div>
+
+ <div class="resultRow">
+  <b id="severityLabel">درجة الخطورة</b>
+  <span class="badge high" id="severityValue">عالية</span>
+ </div>
+
+ <div class="resultRow">
+  <b id="locationLabel">الموقع</b>
+  <span id="locationValue">جاري تحديد الموقع...</span>
+ </div>
+
+ <div class="resultRow">
+  <b id="descLabel">الوصف المقترح</b>
+  <span id="descValue">تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.</span>
+ </div>
+
+ <div class="resultRow">
+  <b id="actionLabel">الإجراء المقترح</b>
+  <span id="actionValue">إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.</span>
+ </div>
+
+ <br>
+ <button class="primary" onclick="saveReport()" id="saveBtn">✓ تسجيل المخالفة</button>
+</div>
+</div>
 
 <div id="tasks" class="page">
-  <div class="back-header">
-    <h2>مهامي اليوم</h2>
-  </div>
+<header>
+ <div class="top">
+  <button class="lang" onclick="go('home')">←</button>
+  <h2 id="tasksTitle">مهام المفتش</h2>
+  <button class="lang" onclick="toggleLang()">EN</button>
+ </div>
+</header>
 
-  <div class="section">
-    <div class="panel success">
-      🤖 تم ترتيب المسار تلقائياً حسب مستوى الخطورة وقرب الموقع.
-    </div>
-
-    <button class="btn">بدء المسار الذكي</button>
-
-    <div style="margin-top:18px">
-
-      <div class="task">
-        <div class="number">1</div>
-        <div class="task-info">
-          <h4>مطعم الذواقة</h4>
-          <p>حي الشاطئ • 1.2 كم</p>
-        </div>
-        <span class="tag red">عالية</span>
-      </div>
-
-      <div class="task">
-        <div class="number">2</div>
-        <div class="task-info">
-          <h4>مغسلة سيارات الخليج</h4>
-          <p>حي الفيصلية • 2.4 كم</p>
-        </div>
-        <span class="tag orange">متوسطة</span>
-      </div>
-
-      <div class="task">
-        <div class="number">3</div>
-        <div class="task-info">
-          <h4>سوبر ماركت النور</h4>
-          <p>حي المنار • 3.1 كم</p>
-        </div>
-        <span class="tag orange">متوسطة</span>
-      </div>
-
-      <div class="task">
-        <div class="number">4</div>
-        <div class="task-info">
-          <h4>مستودع الأمان</h4>
-          <p>حي الصناعية • 4.8 كم</p>
-        </div>
-        <span class="tag green">منخفضة</span>
-      </div>
-
-    </div>
-  </div>
+<div class="card">
+ <div class="task">
+  <div><b>مخلفات وأنقاض</b><div class="small">120 م</div></div>
+  <span class="badge high">عالية</span>
+ </div>
+ <div class="task">
+  <div><b>حاوية ممتلئة</b><div class="small">350 م</div></div>
+  <span class="badge medium">متوسطة</span>
+ </div>
+ <div class="task">
+  <div><b>إنارة معطلة</b><div class="small">750 م</div></div>
+  <span class="badge low">منخفضة</span>
+ </div>
+</div>
 </div>
 
-
-<div id="ai" class="page">
-  <div class="back-header">
-    <h2>تحليل الذكاء الاصطناعي</h2>
-  </div>
-
-  <div class="section">
-    <div class="panel ai-score">
-      <div>مستوى المخاطرة المتوقع</div>
-      <strong>87%</strong>
-      <div style="color:#e53935;font-weight:bold">مخاطرة عالية</div>
-    </div>
-
-    <div class="panel">
-
-      <h3>العوامل المؤثرة</h3>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>شكاوى سابقة</span>
-          <b>90%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:90%"></div>
-        </div>
-      </div>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>بيانات التراخيص</span>
-          <b>75%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:75%"></div>
-        </div>
-      </div>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>نتائج التفتيش السابقة</span>
-          <b>68%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:68%"></div>
-        </div>
-      </div>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>طبيعة النشاط</span>
-          <b>52%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:52%"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel success">
-      <b>توصية النظام:</b><br>
-      يوصى بزيارة ميدانية خلال 7 أيام.
-    </div>
-  </div>
+<div class="nav">
+ <button class="active" onclick="go('home',this)"><span>🏠</span><i id="n1">الرئيسية</i></button>
+ <button onclick="go('tasks',this)"><span>📋</span><i id="n2">مهامي</i></button>
+ <button onclick="go('camera',this)"><span>📷</span><i id="n3">رصد</i></button>
+ <button><span>👤</span><i id="n4">حسابي</i></button>
 </div>
-
-
-<div id="reports" class="page">
-  <div class="back-header">
-    <h2>التقارير والإحصائيات</h2>
-  </div>
-
-  <div class="section">
-
-    <div class="stats">
-      <div class="stat">
-        <b>156</b>
-        <small>زيارة</small>
-      </div>
-
-      <div class="stat">
-        <b style="color:#e53935">42</b>
-        <small>مخالفة</small>
-      </div>
-
-      <div class="stat">
-        <b style="color:#0a8a52">98</b>
-        <small>مطابق</small>
-      </div>
-    </div>
-
-    <div class="panel" style="margin-top:20px">
-      <h3>توزيع المخاطر</h3>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>عالية</span>
-          <b>27%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:27%;background:#e53935"></div>
-        </div>
-      </div>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>متوسطة</span>
-          <b>46%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:46%;background:#ff9800"></div>
-        </div>
-      </div>
-
-      <div class="factor">
-        <div class="factor-line">
-          <span>منخفضة</span>
-          <b>27%</b>
-        </div>
-        <div class="bar">
-          <div class="fill" style="width:27%"></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<div id="facility" class="page">
-
-  <div class="back-header">
-    <button onclick="goPage('home')">←</button>
-    <h2>تفاصيل المنشأة</h2>
-  </div>
-
-  <div class="section">
-    <div class="panel">
-
-      <h2>مطعم الذواقة</h2>
-      <p style="color:#718078;margin-top:7px">
-        مطعم ومقهى • حي الشاطئ - الدمام
-      </p>
-
-      <div class="alert-box">
-        ⚠️ <b>مستوى المخاطرة: 87%</b><br><br>
-        • وجود مخالفات سابقة<br>
-        • ارتفاع عدد الشكاوى مؤخراً<br>
-        • قرب انتهاء بعض التراخيص<br>
-        • نشاط عالي الحساسية
-      </div>
-
-      <button class="btn" onclick="goPage('ai')">
-        عرض تحليل الذكاء الاصطناعي
-      </button>
-
-      <button class="btn" onclick="saveInspection()" style="background:#174f39">
-        تسجيل نتيجة التفتيش
-      </button>
-
-      <div id="savedMsg"></div>
-
-    </div>
-  </div>
-</div>
-
-
-<nav id="nav">
-  <button class="active" onclick="goPage('home',this)">
-    <span>⌂</span>
-    الرئيسية
-  </button>
-
-  <button onclick="goPage('tasks',this)">
-    <span>✓</span>
-    المهام
-  </button>
-
-  <button onclick="goPage('ai',this)">
-    <span>AI</span>
-    التحليل
-  </button>
-
-  <button onclick="goPage('reports',this)">
-    <span>▥</span>
-    التقارير
-  </button>
-</nav>
-
 
 <script>
-  function goPage(id, button){
-    document.querySelectorAll('.page').forEach(page=>{
-      page.classList.remove('active');
-    });
+let lang="ar";
 
-    document.getElementById(id).classList.add('active');
+function go(id,btn){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ window.scrollTo(0,0);
+}
 
-    document.querySelectorAll('nav button').forEach(btn=>{
-      btn.classList.remove('active');
-    });
+function previewPhoto(e){
+ const file=e.target.files[0];
+ if(!file)return;
+ const img=document.createElement("img");
+ img.src=URL.createObjectURL(file);
+ const box=document.getElementById("preview");
+ box.innerHTML="";
+ box.appendChild(img);
+}
 
-    if(button){
-      button.classList.add('active');
-    }
+function analyze(){
+ go("analysis");
+ getLocation();
+}
 
-    window.scrollTo({
-      top:0,
-      behavior:'smooth'
-    });
+function getLocation(){
+ if(!navigator.geolocation){
+  document.getElementById("locationValue").textContent=
+  lang==="ar"?"الموقع غير مدعوم":"Location unavailable";
+  return;
+ }
+ navigator.geolocation.getCurrentPosition(
+  p=>{
+   document.getElementById("locationValue").textContent=
+   p.coords.latitude.toFixed(5)+", "+p.coords.longitude.toFixed(5);
+  },
+  ()=>{
+   document.getElementById("locationValue").textContent=
+   lang==="ar"?"تعذر الوصول للموقع":"Could not access location";
   }
+ );
+}
 
-  function openFacility(){
-    goPage('facility');
-  }
+function startTour(){
+ alert(lang==="ar"?"✅ تم بدء الجولة التفتيشية":"✅ Inspection tour started");
+}
 
-  function saveInspection(){
-    document.getElementById('savedMsg').innerHTML =
-      '<div class="panel success">✅ تم تسجيل نتيجة التفتيش بنجاح في النموذج التجريبي.</div>';
-  }
+function saveReport(){
+ alert(lang==="ar"?"✅ تم تسجيل المخالفة بنجاح":"✅ Violation submitted successfully");
+ go("home");
+}
 
-  document.querySelectorAll('.filter').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
+function toggleLang(){
+ lang=lang==="ar"?"en":"ar";
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+
+ const t={
+ ar:{
+ tagline:"لمدن أجمل وأكثر أمانًا",
+ welcome:"أهلاً بك، مفتش البلدية 👋",
+ today:"جولات ومهام اليوم",
+ s1:"مهام اليوم",s2:"تم الإنجاز",s3:"قيد المعالجة",
+ tourTitle:"الجولات التفتيشية",
+ tour1:"جولة المنشآت التجارية",
+ tour1s:"مطاعم، مقاهي، متاجر",
+ tour2:"جولة البناء والتشوه البصري",
+ tour2s:"مخلفات، حواجز، أعمال إنشاء",
+ tour3:"جولة النظافة العامة",
+ tour3s:"نفايات وحاويات ونظافة الطرق",
+ tour4:"جولة المرافق العامة",
+ tour4s:"إنارة، أرصفة، حدائق ومرافق",
+ startTour:"▶ بدء جولة تفتيش",
+ quick:"إجراءات سريعة",
+ captureTxt:"تصوير مخالفة",locTxt:"تحديد الموقع",
+ tasksTxt:"مهامي",reportsTxt:"التقارير",
+ camTitle:"تصوير المخالفة",
+ photoHelp:"اضغط لالتقاط أو اختيار صورة",
+ analyzeBtn:"✨ تحليل بالذكاء الاصطناعي",
+ analysisTitle:"نتيجة التحليل الذكي",
+ typeLabel:"نوع المخالفة",typeValue:"رمي مخلفات وأنقاض",
+ severityLabel:"درجة الخطورة",severityValue:"عالية",
+ locationLabel:"الموقع",
+ descLabel:"الوصف المقترح",
+ descValue:"تم رصد مخلفات في موقع غير مخصص مما يؤثر على النظافة والمظهر العام.",
+ actionLabel:"الإجراء المقترح",
+ actionValue:"إحالة البلاغ للفريق المختص وإزالة المخلفات وتوثيق المعالجة.",
+ saveBtn:"✓ تسجيل المخالفة",
+ tasksTitle:"مهام المفتش",
+ n1:"الرئيسية",n2:"مهامي",n3:"رصد",n4:"حسابي"
+ },
+ en:{
+ tagline:"Smarter cities. Safer communities.",
+ welcome:"Welcome, Municipal Inspector 👋",
+ today:"Today's tours and tasks",
+ s1:"Today's Tasks",s2:"Completed",s3:"In Progress",
+ tourTitle:"Inspection Tours",
+ tour1:"Commercial Facilities",
+ tour1s:"Restaurants, cafés and shops",
+ tour2:"Construction & Visual Pollution",
+ tour2s:"Waste, barriers and construction",
+ tour3:"Public Cleanliness",
+ tour3s:"Waste, bins and street cleanliness",
+ tour4:"Public Facilities",
+ tour4s:"Lighting, sidewalks, parks and facilities",
+ startTour:"▶ Start Inspection Tour",
+ quick:"Quick Actions",
+ captureTxt:"Capture Violation",locTxt:"Get Location",
+ tasksTxt:"My Tasks",reportsTxt:"Reports",
+ camTitle:"Capture Violation",
+ photoHelp:"Tap to capture or select a photo",
+ analyzeBtn:"✨ Analyze with AI",
+ analysisTitle:"Smart Analysis Result",
+ typeLabel:"Violation Type",typeValue:"Waste & Debris",
+ severityLabel:"Severity",severityValue:"High",
+ locationLabel:"Location",
+ descLabel:"Suggested Description",
+ descValue:"Waste was detected in an unauthorized area affecting cleanliness and public appearance.",
+ actionLabel:"Suggested Action",
+ actionValue:"Assign to the relevant team, remove waste and document completion.",
+ saveBtn:"✓ Submit Violation",
+ tasksTitle:"Inspector Tasks",
+ n1:"Home",n2:"Tasks",n3:"Capture",n4:"Account"
+ }};
+
+ Object.keys(t[lang]).forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.textContent=t[lang][id];
+ });
+
+ document.querySelectorAll(".lang").forEach(b=>{
+  if(!b.textContent.includes("←"))b.textContent=lang==="ar"?"EN":"عربي";
+ });
+}
 </script>
-
 </body>
 </html>
