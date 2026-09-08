@@ -723,6 +723,19 @@ function previewPhoto(e){
  box.innerHTML="";
 
  box.appendChild(img);
+} const now = new Date();
+
+localStorage.setItem("captureTime", now.toLocaleString());
+
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      localStorage.setItem(
+        "captureLocation",
+        p.coords.latitude.toFixed(5)+", "+p.coords.longitude.toFixed(5)
+      );
+    }
+  );
 }
 
 function analyze(){
@@ -743,7 +756,8 @@ function analyze(){
  go("analysis");
 
  getLocation();
-}function deletePhoto(){
+}
+ function deletePhoto(){
   const photo = document.getElementById("photo");
   const preview = document.getElementById("preview");
 
